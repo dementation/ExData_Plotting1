@@ -1,0 +1,31 @@
+setwd(getwd())
+data<-read.table(".//household_power_consumption.txt", sep=";", header=TRUE)
+##format into date
+DateTime<-as.POSIXct(paste(data$Date, data$Time), format="%d/%m/%Y %H:%M:%S")
+data<-cbind(data, DateTime) 
+data$Date<-as.Date(data$Date, format="%d/%m/%Y")
+##subset the data
+subDat<-data.frame()
+subDat<-rbind(data[which(data$Date=="2007-02-01"),])
+subDat<-rbind(subDat,data[which(data$Date=="2007-02-02"),])
+#lapply to get numneric data
+subDat[,3:9]<-lapply(subDat[,3:9], function(x)as.numeric(as.character(x)))
+
+#star with plot 4
+png(".//plot4.png",bg = "transparent")
+par(mfrow=c(2,2))
+par(mar=c(6,4,3,1))
+Sys.setlocale(category = "LC_TIME", locale = "C")
+plot(subDat$DateTime, subDat$Global_active_power, type="l", xlab="",ylab="Global Active Power")
+par(mar=c(6,5,3,1))
+plot(subDat$DateTime, subDat$Voltage, ylab="Voltage", xlab="datetime", pch="")
+lines(subDat$DateTime, subDat$Voltage)
+par(mar=c(6,4,3,1))
+plot(subDat$DateTime, subDat$Sub_metering_1, type="l", xlab="",ylab="Energy sub metering")
+lines(subDat$DateTime,subDat$Sub_metering_2, col="red")
+lines(subDat$DateTime,subDat$Sub_metering_3, col="blue")
+legend("topright", cex=1,bty="n" , legend =c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3"), pch="", lwd=1, col=c("black", "red", "blue"))
+par(mar=c(6,5,3,1))
+plot(subDat$DateTime, subDat$Global_reactive_power, pch="", xlab="datetime",ylab="Global_reactive_power")
+lines(subDat$DateTime, subDat$Global_reactive_power)
+dev.off()
